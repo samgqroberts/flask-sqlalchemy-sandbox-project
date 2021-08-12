@@ -9,3 +9,5 @@ def test_app_fixture(app):
 def test_client(client):
     response = client.get("/hello")
     assert response.data == b"Hello, World!"
+
+    assert client.url_for('hello') == 'http://localhost/hello'

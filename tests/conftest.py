@@ -1,4 +1,5 @@
 import pytest
+from flask import url_for
 from myapp import create_app
 
 
@@ -7,6 +8,7 @@ def app():
     app = create_app(
         {
             "TESTING": True,
+            "SERVER_NAME": 'localhost',  # to enable url_for
             "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
             "SQLALCHEMY_TRACK_MODIFICATIONS": False
         }
@@ -17,7 +19,13 @@ def app():
 
 @pytest.fixture
 def client(app):
-    return app.test_client()
+    test_client = app.test_client()
+    # for convenience, attach a url_for function to the client that already has the app_context
+    def uf(url_name):
+        with app.app_context():
+            return url_for(url_name)
+    test_client.url_for = uf
+    return test_client
 
 
 @pytest.fixture
