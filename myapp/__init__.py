@@ -12,17 +12,17 @@ def create_app(test_config = None):
         app.config.from_mapping(test_config)
 
     # initialize and configure database connection
-    db = SQLAlchemy(app=app, engine_options={'connect_args': {'connect_timeout': 120}, 'pool_pre_ping': True,
+    db = SQLAlchemy(app=app, engine_options={'pool_pre_ping': True,
                                             'isolation_level': 'READ UNCOMMITTED', 'query_cache_size': 0})
     db.init_app(app)
 
     # incorporate all blueprints
     from . import myblueprint
     app.register_blueprint(myblueprint.blueprint)
+    myblueprint.db.init_app(app)
 
     @app.route('/hello')
     def hello():
         return "Hello, World!"
 
-    
     return app

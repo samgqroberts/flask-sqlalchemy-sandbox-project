@@ -4,21 +4,22 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 blueprint = Blueprint('myblueprint', __name__)
 
+
+class Thing(db.Model):
+    __tablename__ = 'thing'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
+
+
 @blueprint.route("/things", methods=("GET", "POST"))
 def things():
     if request.method == "GET":
-        things = [
-            'response',
-            'to',
-            'GET',
-            'request'
-        ]
-        return jsonify(things)
+        things = Thing.query.all()
+        return jsonify([{ 'id': t.id, 'name': t.name } for t in things])
     if request.method == "POST":
-        things = [
-            'response',
-            'to',
-            'POST',
-            'request'
-        ]
-        return jsonify(things)
+        data = request.get_json()
+        newThing = Thing(name=data['name'])
+        db.session.add(newThing)
+        db.session.commit()
+        return 'Ok', 200

@@ -1,6 +1,7 @@
 import pytest
 from flask import url_for
 from myapp import create_app
+from myapp import myblueprint
 
 
 @pytest.fixture
@@ -13,6 +14,10 @@ def app():
             "SQLALCHEMY_TRACK_MODIFICATIONS": False
         }
     )
+
+    # create db tables for all models declared in blueprints
+    with app.app_context():
+        myblueprint.db.create_all()
 
     yield app
 
