@@ -3,14 +3,18 @@ from flask import request, Blueprint, jsonify
 from flask_jwt_extended.view_decorators import jwt_required
 from flask_sqlalchemy import SQLAlchemy
 from passlib.handlers.pbkdf2 import pbkdf2_sha256
-from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity
+from flask_jwt_extended import (
+    create_access_token,
+    create_refresh_token,
+    get_jwt_identity,
+)
 
 db = SQLAlchemy()
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
 
 class User(db.Model):
-    __tablename__ = 'user'
+    __tablename__ = "user"
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(32), unique=True)
@@ -18,7 +22,7 @@ class User(db.Model):
 
 
 def user_to_dict(user):
-    return {'id': user.id, 'username': user.username}
+    return {"id": user.id, "username": user.username}
 
 
 @bp.route("/users", methods=["GET", "POST"])
@@ -53,10 +57,10 @@ def login():
     pass_ok = password and pbkdf2_sha256.verify(password, user.password)
     if not pass_ok:
         return "Bad username or password.", 401
-    
+
     access = create_access_token(identity=username)
     refresh = create_refresh_token(identity=username)
-    return jsonify({'access': access, 'refresh': refresh})
+    return jsonify({"access": access, "refresh": refresh})
 
 
 @bp.route("/refresh", methods=["POST"])
@@ -64,7 +68,7 @@ def login():
 def refresh():
     identity = get_jwt_identity()
     access = create_access_token(identity=identity)
-    return jsonify({'access': access})
+    return jsonify({"access": access})
 
 
 @bp.route("/self", methods=["GET"])

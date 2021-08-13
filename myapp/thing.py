@@ -2,15 +2,15 @@ from flask import request, Blueprint, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
-bp = Blueprint('thing', __name__, url_prefix="/things")
+bp = Blueprint("thing", __name__, url_prefix="/things")
 
 
 def thing_to_dict(thing):
-    return {'id': thing.id, 'name': thing.name}
+    return {"id": thing.id, "name": thing.name}
 
 
 class Thing(db.Model):
-    __tablename__ = 'thing'
+    __tablename__ = "thing"
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80))
@@ -23,10 +23,10 @@ def things():
         return jsonify([thing_to_dict(t) for t in things])
     if request.method == "POST":
         data = request.get_json()
-        newThing = Thing(name=data['name'])
+        newThing = Thing(name=data["name"])
         db.session.add(newThing)
         db.session.commit()
-        return 'Ok', 200
+        return "Ok", 200
 
 
 @bp.route("/<int:id>", methods=("GET", "PUT", "DELETE"))
@@ -36,12 +36,12 @@ def thing(id):
         return jsonify(thing_to_dict(thing))
     if request.method == "PUT":
         data = request.get_json()
-        if not data or 'name' not in data:
+        if not data or "name" not in data:
             return 'Provided json body needs a "name" field.', 400
-        thing.name = data['name']
+        thing.name = data["name"]
         db.session.commit()
-        return 'Ok', 200
+        return "Ok", 200
     if request.method == "DELETE":
         db.session.delete(thing)
         db.session.commit()
-        return 'Ok', 200
+        return "Ok", 200

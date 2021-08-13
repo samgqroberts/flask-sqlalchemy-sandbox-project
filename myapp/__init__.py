@@ -3,19 +3,26 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 
-def create_app(test_config = None):
+
+def create_app(test_config=None):
     # create the base app
     app = Flask(__name__)
 
     # configure app, depending on whether this is a testing context
     if test_config is None:
-        app.config.from_pyfile('../settings.cfg')
+        app.config.from_pyfile("../settings.cfg")
     else:
         app.config.from_mapping(test_config)
 
     # initialize and configure database connection
-    db = SQLAlchemy(app=app, engine_options={'pool_pre_ping': True,
-                                            'isolation_level': 'READ UNCOMMITTED', 'query_cache_size': 0})
+    db = SQLAlchemy(
+        app=app,
+        engine_options={
+            "pool_pre_ping": True,
+            "isolation_level": "READ UNCOMMITTED",
+            "query_cache_size": 0,
+        },
+    )
     db.init_app(app)
 
     # initialize and configure JWT manager
@@ -29,7 +36,7 @@ def create_app(test_config = None):
         app.register_blueprint(module.bp)
         module.db.init_app(app)
 
-    @app.route('/hello')
+    @app.route("/hello")
     def hello():
         return "Hello, World!"
 
@@ -38,4 +45,5 @@ def create_app(test_config = None):
 
 def get_all_blueprint_modules():
     from . import auth, thing
+
     return [auth, thing]
