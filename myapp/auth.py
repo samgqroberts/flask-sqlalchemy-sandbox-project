@@ -19,6 +19,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(32), unique=True)
     password = db.Column(db.String(128))
+    is_admin = db.Column(db.Boolean, default=False)
 
 
 def user_to_dict(user):
@@ -31,6 +32,12 @@ def users():
     if request.method == "GET":
         return jsonify([user_to_dict(u) for u in User.query.all()])
     if request.method == "POST":
+        # ensure that requesting user is admin.
+        # only admins can create new users.
+        identity = get_jwt_identity()
+        user = User.query.filter_by(username=identity).first()
+        if not user or not user.is_admin:
+            return "Must be admin to create new user.", 401
         if request.json is None:
             return "JSON body required.", 400
         username = request.json.get("username", None)

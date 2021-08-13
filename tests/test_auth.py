@@ -1,3 +1,4 @@
+from _pytest.compat import is_async_function
 from flask_jwt_extended.utils import create_access_token, decode_token
 from werkzeug.datastructures import Headers
 from myapp.auth import User, db
@@ -13,7 +14,9 @@ def test_auth_roundtrip(app, client):
     admin_un = "admin"
     admin_pw = "adminpass"
     with app.app_context():
-        admin = User(username=admin_un, password=pbkdf2_sha256.hash(admin_pw))
+        admin = User(
+            username=admin_un, password=pbkdf2_sha256.hash(admin_pw), is_admin=True
+        )
         db.session.add(admin)
         db.session.commit()
 
@@ -80,12 +83,34 @@ def test_get_users(app, client):
 
 def test_add_user(app, client):
     with app.app_context():
-        # create an access token.
-        # NB this is not assigned to an existing identity, but is signed with the server's
-        #    secret key, so will authorize properly.
-        access = create_access_token(identity="whatever")
+        unattached_access = create_access_token(identity="nada")
+        non_admin_un = "non_admin1"
+        non_admin = User(username=non_admin_un, password="whatever")
+        db.session.add(non_admin)
+        non_admin_access = create_access_token(non_admin_un)
+        admin_un = "admin1"
+        admin = User(username=admin_un, password="whatever", is_admin=True)
+        db.session.add(admin)
+        admin_access = create_access_token(admin_un)
+        db.session.commit()
+
     res = client.post(
-        client.url_for("auth.users"), headers=[("Authorization", f"Bearer {access}")]
+        client.url_for("auth.users"),
+        headers=[("Authorization", f"Bearer {unattached_access}")],
+    )
+    assert res.status_code == 401
+    assert res.data == b"Must be admin to create new user."
+
+    res = client.post(
+        client.url_for("auth.users"),
+        headers=[("Authorization", f"Bearer {non_admin_access}")],
+    )
+    assert res.status_code == 401
+    assert res.data == b"Must be admin to create new user."
+
+    res = client.post(
+        client.url_for("auth.users"),
+        headers=[("Authorization", f"Bearer {admin_access}")],
     )
     assert res.status_code == 400
     assert res.data == b"JSON body required."
@@ -93,7 +118,7 @@ def test_add_user(app, client):
     res = client.post(
         client.url_for("auth.users"),
         json={},
-        headers=[("Authorization", f"Bearer {access}")],
+        headers=[("Authorization", f"Bearer {admin_access}")],
     )
     assert res.status_code == 400
     assert res.data == b"'username' field required."
@@ -102,7 +127,7 @@ def test_add_user(app, client):
     res = client.post(
         client.url_for("auth.users"),
         json={"username": un},
-        headers=[("Authorization", f"Bearer {access}")],
+        headers=[("Authorization", f"Bearer {admin_access}")],
     )
     assert res.status_code == 400
     assert res.data == b"'password' field required."
@@ -111,13 +136,13 @@ def test_add_user(app, client):
     res = client.post(
         client.url_for("auth.users"),
         json={"username": un, "password": pw},
-        headers=[("Authorization", f"Bearer {access}")],
+        headers=[("Authorization", f"Bearer {admin_access}")],
     )
     assert res.status_code == 200
     assert res.data == b"Ok", 200
 
     with app.app_context():
-        user = User.query.one()
+        user = User.query.filter_by(username="u1").one()
         assert user.username == un
         # assert that the password got hashed as it got stored
         assert user.password != pw
