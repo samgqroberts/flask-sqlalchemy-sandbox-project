@@ -2,7 +2,7 @@ from flask import request, Blueprint, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
-blueprint = Blueprint('thing', __name__)
+bp = Blueprint('thing', __name__, url_prefix="/things")
 
 
 def thing_to_dict(thing):
@@ -16,7 +16,7 @@ class Thing(db.Model):
     name = db.Column(db.String(80))
 
 
-@blueprint.route("/things", methods=("GET", "POST"))
+@bp.route("/", methods=("GET", "POST"))
 def things():
     if request.method == "GET":
         things = Thing.query.all()
@@ -29,7 +29,7 @@ def things():
         return 'Ok', 200
 
 
-@blueprint.route("/things/<int:id>", methods=("GET", "PUT", "DELETE"))
+@bp.route("/<int:id>", methods=("GET", "PUT", "DELETE"))
 def thing(id):
     thing = Thing.query.get_or_404(id)
     if request.method == "GET":
