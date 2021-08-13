@@ -26,6 +26,7 @@ def user_to_dict(user):
 
 
 @bp.route("/users", methods=["GET", "POST"])
+@jwt_required()
 def users():
     if request.method == "GET":
         return jsonify([user_to_dict(u) for u in User.query.all()])
