@@ -2,6 +2,7 @@ from flask import Blueprint, request
 from flask import request, Blueprint, jsonify
 from flask_jwt_extended.view_decorators import jwt_required
 from flask_sqlalchemy import SQLAlchemy
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from passlib.handlers.pbkdf2 import pbkdf2_sha256
 from flask_jwt_extended import (
     create_access_token,
@@ -22,15 +23,17 @@ class User(db.Model):
     is_admin = db.Column(db.Boolean, default=False)
 
 
-def user_to_dict(user):
-    return {"id": user.id, "username": user.username}
+class UserSchema(SQLAlchemyAutoSchema):
+    class Meta:
+        model = User
+        fields = ["id", "username"]
 
 
 @bp.route("/users", methods=["GET", "POST"])
 @jwt_required()
 def users():
     if request.method == "GET":
-        return jsonify([user_to_dict(u) for u in User.query.all()])
+        return jsonify([UserSchema().dump(u) for u in User.query.all()])
     if request.method == "POST":
         # ensure that requesting user is admin.
         # only admins can create new users.
@@ -84,4 +87,4 @@ def refresh():
 def self():
     identity = get_jwt_identity()
     user = User.query.filter_by(username=identity).first()
-    return jsonify(user_to_dict(user))
+    return jsonify(UserSchema().dump(user))

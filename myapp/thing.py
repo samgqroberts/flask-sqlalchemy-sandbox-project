@@ -1,12 +1,9 @@
 from flask import request, Blueprint, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from marshmallow_sqlalchemy.schema import SQLAlchemyAutoSchema
 
 db = SQLAlchemy()
 bp = Blueprint("thing", __name__, url_prefix="/things")
-
-
-def thing_to_dict(thing):
-    return {"id": thing.id, "name": thing.name}
 
 
 class Thing(db.Model):
@@ -16,11 +13,16 @@ class Thing(db.Model):
     name = db.Column(db.String(80))
 
 
+class ThingSchema(SQLAlchemyAutoSchema):
+    class Meta:
+        model = Thing
+
+
 @bp.route("/", methods=("GET", "POST"))
 def things():
     if request.method == "GET":
         things = Thing.query.all()
-        return jsonify([thing_to_dict(t) for t in things])
+        return jsonify([ThingSchema().dump(t) for t in things])
     if request.method == "POST":
         data = request.get_json()
         newThing = Thing(name=data["name"])
@@ -33,7 +35,7 @@ def things():
 def thing(id):
     thing = Thing.query.get_or_404(id)
     if request.method == "GET":
-        return jsonify(thing_to_dict(thing))
+        return jsonify(ThingSchema().dump(thing))
     if request.method == "PUT":
         data = request.get_json()
         if not data or "name" not in data:
