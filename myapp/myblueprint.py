@@ -9,7 +9,7 @@ class Thing(db.Model):
     __tablename__ = 'thing'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
+    name = db.Column(db.String(80))
 
 
 @blueprint.route("/things", methods=("GET", "POST"))

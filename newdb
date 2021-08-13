@@ -1,0 +1,25 @@
+#!/bin/bash
+
+MYSQL_VERSION=8.0.26
+DB_CONTAINER_NAME=myapp-mysql-${MYSQL_VERSION}
+DATA_DIR=~/docker-data/${DB_CONTAINER_NAME}
+PORT=3308
+
+echo "Creating and running new MySQL docker container"
+echo "Version: ${MYSQL_VERSION}"
+echo "Container name: ${DB_CONTAINER_NAME}"
+echo ""
+
+mkdir -p ~/docker-data/
+
+docker run --name ${DB_CONTAINER_NAME} \
+  -e MYSQL_ROOT_PASSWORD=12345 \
+  -v ${DATA_DIR}:/var/lib/mysql \
+  -p 127.0.0.1:${PORT}:3306 \
+  -d \
+  "mysql:${MYSQL_VERSION}"
+
+echo ""
+echo "Container created and running"
+echo "To connect via mysql command line interface:"
+echo "mysql -uroot -p12345 -h127.0.0.1 -P${PORT}"
