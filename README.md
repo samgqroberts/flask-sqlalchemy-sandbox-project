@@ -4,7 +4,8 @@ In order to create the proper MySQL database process, use the newdb script to cr
 a Docker container for MySQL.
 
 In order to populate that process with the proper database and tables, use the python shell:
-python```
+
+```python
 >>> from myapp import create_app, db
 >>> db.drop_database("myapp")
 >>> db.create_database("myapp")
