@@ -1,14 +1,9 @@
 import pytest
 from flask import url_for
-from myapp import create_app
-from myapp import db
+from myapp import create_app, db
+from myapp.db import DEV_DB_USER, DEV_DB_PASSWORD, DEV_DB_HOST, DEV_DB_PORT, DEV_DB_CHARSET
 
-DB_USER="root"
-DB_PASSWORD="12345"
-DB_HOST="127.0.0.1"
-DB_PORT="3308"
 DB_NAME="myapp_test"
-DB_CHARSET="utf8mb4"
 
 @pytest.fixture
 def app():
@@ -16,7 +11,7 @@ def app():
         {
             "TESTING": True,
             "SERVER_NAME": 'localhost',  # to enable url_for
-            "SQLALCHEMY_DATABASE_URI":f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}?charset={DB_CHARSET}",
+            "SQLALCHEMY_DATABASE_URI":f"mysql+pymysql://{DEV_DB_USER}:{DEV_DB_PASSWORD}@{DEV_DB_HOST}:{DEV_DB_PORT}/{DB_NAME}?charset={DEV_DB_CHARSET}",
             "SQLALCHEMY_TRACK_MODIFICATIONS": False
         }
     )
