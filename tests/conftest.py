@@ -29,9 +29,9 @@ def app():
 def client(app):
     test_client = app.test_client()
     # for convenience, attach a url_for function to the client that already has the app_context
-    def uf(url_name):
+    def uf(url_name, **values):
         with app.app_context():
-            return url_for(url_name)
+            return url_for(url_name, **values)
     test_client.url_for = uf
     return test_client
 
