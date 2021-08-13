@@ -17,9 +17,9 @@ def create_app(test_config = None):
     db.init_app(app)
 
     # incorporate all blueprints
-    from . import myblueprint
-    app.register_blueprint(myblueprint.blueprint)
-    myblueprint.db.init_app(app)
+    from . import thing
+    app.register_blueprint(thing.blueprint)
+    thing.db.init_app(app)
 
     @app.route('/hello')
     def hello():

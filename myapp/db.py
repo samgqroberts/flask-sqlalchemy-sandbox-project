@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from myapp import myblueprint
+from myapp import thing
 
 # common values for development server and testing (but not production)
 DEV_DB_USER="root"
@@ -22,7 +22,7 @@ def create_database(db_name, user=DEV_DB_USER, password=DEV_DB_PASSWORD, host=DE
 def create_all_tables(app):
     # create db tables for all models declared in blueprints
     with app.app_context():
-        myblueprint.db.create_all()
+        thing.db.create_all()
 
 def drop_database(db_name, user=DEV_DB_USER, password=DEV_DB_PASSWORD, host=DEV_DB_HOST,
                   port=DEV_DB_PORT):

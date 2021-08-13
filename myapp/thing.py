@@ -2,7 +2,7 @@ from flask import request, Blueprint, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
-blueprint = Blueprint('myblueprint', __name__)
+blueprint = Blueprint('thing', __name__)
 
 
 def thing_to_dict(thing):
