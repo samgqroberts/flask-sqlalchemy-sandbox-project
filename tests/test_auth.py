@@ -1,6 +1,4 @@
-from _pytest.compat import is_async_function
 from flask_jwt_extended.utils import create_access_token, decode_token
-from werkzeug.datastructures import Headers
 from myapp.auth import User, db
 from passlib.handlers.pbkdf2 import pbkdf2_sha256
 from flask_jwt_extended import create_refresh_token
